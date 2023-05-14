@@ -18,7 +18,7 @@ Reboot
 
 `./installDependencies.sh bin`
 
-Download VScode from [here](https://code.visualstudio.com/download). Download the .deb file for Ubuntu.
+To install VScode, download the .deb file for Ubuntu from [here](https://code.visualstudio.com/download).
 
 `sudo dpkg -i <file_name>`
 
