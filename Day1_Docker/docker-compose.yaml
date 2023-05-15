@@ -1,0 +1,25 @@
+version: '3.9'
+networks:
+    test:
+services:
+  container1:
+    container_name: sample
+    image: hyperledger/fabric-tools:2.4
+    tty: true
+    environment:
+     - Var=abcd
+    volumes:
+     - ./samplefolder:/hyperledger/fabric/newfolder
+    working_dir: /hyperledger/fabric
+    ports:
+      - 7050:7050
+  container2:
+    container_name: COUCH_db
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=user
+      - COUCHDB_PASSWORD=password
+    ports:
+      - 3000:5984
+    networks:
+        test:
