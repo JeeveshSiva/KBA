@@ -67,19 +67,19 @@ docker volume prune
 ```
 docker network prune
 ```
-To check for containers
+**To check for containers**
 
 `docker ps -a`
 
-To forcefully remove containers
+**To forcefully remove containers**
 
 `docker rm $(docker container ls -q) --force`
 
-To check for volumes
+**To check for volumes**
 
 `docker volume ls`
 
-To delete the volumes
+**To delete the volumes**
 
 `docker volume rm $(docker volume ls -q)`
 
