@@ -72,12 +72,15 @@ To check for containers
 `docker ps -a`
 
 To forcefully remove containers
+
 `docker rm $(docker container ls -q) --force`
 
 To check for volumes
+
 `docker volume ls`
 
 To delete the volumes
+
 `docker volume rm $(docker volume ls -q)`
 
 **To delete vars folder**
