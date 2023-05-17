@@ -53,9 +53,6 @@ chmod +x startNetwork.sh
 ```
 **To remove the containers**
 ```
-docker rm $(docker container ls -q) --force
-```
-```
 docker container prune
 ```
 ```
