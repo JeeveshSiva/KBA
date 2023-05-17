@@ -119,6 +119,10 @@ sudo rm -rf vars
 
 `minifab query -n KBA-Automobile -p '"readCar","car01"'`
 
+//Update the chaincode
+
+`cp -r ../Chaincode/KBA-Automobile/* vars/chaincode/KBA-Automobile/node/`
+
 `minifab ccup -n KBA-Automobile -l node -v 2.0 -d false`
 
 `minifab invoke -n KBA-Automobile -p '"createCar","car02","BMW"'`
