@@ -115,7 +115,7 @@ sudo rm -rf vars
 
 `minifab ccup -n KBA-Automobile -l node -v 1.0 -d false`
 
-`minifab invoke -n KBA-Automobile -p '"createCar","car01","Tata"'`
+`minifab invoke -n KBA-Automobile -p '"createCar","car01","Tiago"'`
 
 `minifab query -n KBA-Automobile -p '"readCar","car01"'`
 
