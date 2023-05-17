@@ -135,6 +135,24 @@ sudo rm -rf vars
 
 `minifab query -n KBA-Automobile -p '"readCar","car02"'`
 
+**To view explorer**
+
+`minifab explorerup`
+
+userid: exploreradmin
+
+password: exploreradminpw
+
+`minifab explorerdown`
+
+**To view couchdb**
+
+http://localhost:7006/_utils/
+
+ userid: admin
+ 
+ password: adminpw
+
 **Day2**
 
 **Raft**
