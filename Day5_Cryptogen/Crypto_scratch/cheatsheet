@@ -1,0 +1,167 @@
+##Open Terminal from the folder where all the configuration files exist##
+  ##Set Environment Variables##
+    export FABRIC_CFG_PATH=${PWD}
+    export CHANNEL_NAME=mychannel
+    export IMAGE_TAG=latest
+    export COMPOSE_PROJECT_NAME=fabric-from-scratch
+
+ ##To generate cryptomaterials##
+   cryptogen generate --config=./crypto-config.yaml
+
+ ##To generate genesis block##
+  configtxgen -profile OrdererGenesis -channelID system-channel -outputBlock ./config/genesis.block
+
+ ##To generate channel Transaction##
+  configtxgen -profile MyChannel -outputCreateChannelTx ./config/$CHANNEL_NAME.tx -channelID $CHANNEL_NAME
+
+  ## To set containers up and running##
+  docker-compose -f docker-compose.yaml up -d
+
+  ##Export the orderer TLS certificate from CLI container##
+  ORDERER_TLS_CA=`docker exec cli  env | grep ORDERER_TLS_CA | cut -d'=' -f2`
+
+  ##To view the data inside ORDERER_TLS_CA##
+  echo $ORDERER_TLS_CA
+
+  ##Channel Creation##
+  docker exec cli peer channel create -o orderer.auto.com:7050 -c $CHANNEL_NAME -f /opt/gopath/src/github.com/hyperledger/fabric/peer/config/$CHANNEL_NAME.tx --tls --cafile $ORDERER_TLS_CA
+
+##Open as many as CLI terminals as the number of peers##
+ ##To enter the cli container##
+  docker exec -it cli bash
+
+## Set the Environment variables for each##
+
+Org1 env 
+================
+##CLI##
+CHANNEL_NAME=mychannel
+CORE_PEER_ADDRESS=peer0.org1.auto.com:7051
+CORE_PEER_LOCALMSPID=Org1MSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.auto.com/users/Admin@org1.auto.com/msp
+ORDERER_TLS_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/auto.com/orderers/orderer.auto.com/msp/tlscacerts/tlsca.auto.com-cert.pem
+
+
+Org2 env 
+==========
+##CLI##
+CHANNEL_NAME=mychannel
+CORE_PEER_ADDRESS=peer0.org2.auto.com:7051
+CORE_PEER_LOCALMSPID=Org2MSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.auto.com/users/Admin@org2.auto.com/msp
+ORDERER_TLS_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/auto.com/orderers/orderer.auto.com/msp/tlscacerts/tlsca.auto.com-cert.pem
+
+Org3 env 
+=======
+##CLI##
+CHANNEL_NAME=mychannel
+CORE_PEER_ADDRESS=peer0.org3.auto.com:7051
+CORE_PEER_LOCALMSPID=Org3MSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.auto.com/users/Admin@org3.auto.com/msp
+ORDERER_TLS_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/auto.com/orderers/orderer.auto.com/msp/tlscacerts/tlsca.auto.com-cert.pem
+
+
+#### repeat for all the peers###
+
+peer channel join -b $CHANNEL_NAME.block
+
+############### To update Anchor peer of each organisations ############################################################################################################
+##Inside HOST Terminal##
+configtxgen -profile MyChannel -outputAnchorPeersUpdate ./config/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP
+
+configtxgen -profile MyChannel -outputAnchorPeersUpdate ./config/Org2MSPanchors.tx -channelID mychannel -asOrg Org2MSP
+
+configtxgen -profile MyChannel -outputAnchorPeersUpdate ./config/Org3MSPanchors.tx -channelID mychannel -asOrg Org3MSP
+
+##For channel Update##
+  ##Org1 CLI##
+  peer channel update -o orderer.auto.com:7050 -c mychannel -f ./config/Org1MSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+  ##Org2 CLI##
+  peer channel update -o orderer.auto.com:7050 -c mychannel -f ./config/Org2MSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+  ##Org3 CLI##
+  peer channel update -o orderer.auto.com:7050 -c mychannel -f ./config/Org3MSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+  
+  
+  ##############################Package and install chaincode################################################################################
+  
+     ##from HOST Terminal##
+     docker cp ./../fabric-samples/chaincode/fabcar/javascript c965e6aa67d3:/opt/gopath/src/github.com/chaincode/
+
+    ##from any one of CLIs##
+    peer lifecycle chaincode package fabcar.tar.gz --path /opt/gopath/src/github.com/chaincode/javascript/ --lang node --label fabcar_1
+
+   ##Install the package in all the peers, do the following commands in all CLI##
+    peer lifecycle chaincode install fabcar.tar.gz 
+
+##*** copy the package ID ******##
+
+fabcar_1:ffd5d937737e1a852402eab332858cac525b79239142b1a9524f982d5d0eec9c
+
+#### Approval of package ####
+
+  ##From CLI of Org1#
+  peer lifecycle chaincode approveformyorg --channelID mychannel --name fabcar --version 1 --sequence 1 --package-id fabcar_1:395f8891ab794db178adbc354ea9d65ac84412303728e0e4aa5371bf97112b9d  --tls --cafile $ORDERER_TLS_CA --waitForEvent
+
+  ##From CLI of org2#
+  peer lifecycle chaincode approveformyorg --channelID mychannel --name fabcar --version 1 --sequence 1 --package-id fabcar_1:395f8891ab794db178adbc354ea9d65ac84412303728e0e4aa5371bf97112b9d  --tls --cafile $ORDERER_TLS_CA --waitForEvent
+
+  ##From CLI of Org3#
+  peer lifecycle chaincode approveformyorg --channelID mychannel --name fabcar --version 1 --sequence 1 --package-id fabcar_1:395f8891ab794db178adbc354ea9d65ac84412303728e0e4aa5371bf97112b9d  --tls --cafile $ORDERER_TLS_CA --waitForEvent
+
+################################ Commit on all orgs #####################################################
+
+##CLI of All orgs##
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name fabcar --version 1 --sequence 1 --tls --cafile $ORDERER_TLS_CA --output json
+
+##CLI of any one of the orgs##
+peer lifecycle chaincode commit -o orderer.auto.com:7050 --channelID mychannel --name fabcar --tls --cafile $ORDERER_TLS_CA --peerAddresses peer0.org1.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt --peerAddresses peer0.org2.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/ca.crt --peerAddresses peer0.org3.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/ca.crt --version 1 --sequence 1
+
+#####Invoking All the methods inside chaincode######
+
+##CLI of any orgs##
+peer chaincode invoke -o orderer.auto.com:7050 --tls --cafile $ORDERER_TLS_CA -C mychannel -n fabcar --peerAddresses peer0.org1.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt --peerAddresses peer0.org2.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/ca.crt --peerAddresses peer0.org3.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/ca.crt -c '{"function":"initLedger","Args":[]}'
+
+peer chaincode query -o orderer.auto.com:7050 --tls --cafile $ORDERER_TLS_CA -C mychannel -n fabcar --peerAddresses peer0.org1.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt  -c '{"Args":["queryCar","CAR1"]}'
+
+peer chaincode invoke -o orderer.auto.com:7050 --tls --cafile $ORDERER_TLS_CA -C mychannel -n fabcar --peerAddresses peer0.org1.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt --peerAddresses peer0.org2.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/ca.crt --peerAddresses peer0.org3.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/ca.crt -c '{"function":"createCar", "Args":["CAR5","Tata","Tiago","Black","Arun"]}'
+
+peer chaincode invoke -o orderer.auto.com:7050 --tls --cafile $ORDERER_TLS_CA -C mychannel -n fabcar --peerAddresses peer0.org1.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org1.auto.com/peers/peer0.org1.auto.com/tls/ca.crt --peerAddresses peer0.org2.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org2.auto.com/peers/peer0.org2.auto.com/tls/ca.crt --peerAddresses peer0.org3.auto.com:7051 --tlsRootCertFiles ${PWD}/crypto/peerOrganizations/org3.auto.com/peers/peer0.org3.auto.com/tls/ca.crt -c '{"function":"initLedger","Args":[]}'
+
+################################## RETURN TO HOST ########################################
+ ### To clear the network components##
+docker-compose -f docker-compose.yaml down
+
+
+cd config/
+
+
+rm -rf *
+
+
+cd ..
+
+
+cd crypto-config/
+
+
+rm -rf *
+
+
+cd ..
+############################# END #################################################
+
