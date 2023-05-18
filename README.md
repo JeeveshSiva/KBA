@@ -6,6 +6,118 @@ Hyperledger Fabric readthedocs: https://hyperledger-fabric.readthedocs.io/en/rel
 
 Fabric samples: https://github.com/hyperledger/fabric-samples
 
+**Day 4: Chaincode**
+
+**To view explorer**
+
+`minifab explorerup`
+
+userid: exploreradmin
+
+password: exploreradminpw
+
+`minifab explorerdown`
+
+**To view couchdb**
+
+http://localhost:7006/_utils/
+
+ userid: admin
+ 
+ password: adminpw
+
+**Create Sample Chaincode**
+
+`npm init -y`
+
+`npm i fabric-contract-api@2.2.3`
+
+`npm i fabric-shim@2.2.3`
+
+`"start": "fabric-chaincode-node start"`
+
+**PDC - collections.json**
+
+```
+[
+  {
+    "name": "CollectionOrder",
+    "policy": "OR('manufacturer-auto-com.member', 'dealer-auto-com.member')",
+    "requiredPeerCount": 1,
+    "maxPeerCount": 1,
+    "blockToLive": 1000000,
+    "memberOnlyRead": true
+  }
+]
+```
+
+**Inputs**
+
+```
+{
+  "arg0": "Car01",
+  "arg1": "Tata",
+  "arg2": "Tiago",
+  "arg3": "White",
+  "arg4": "22/09/2022",
+  "arg5": "F-01"
+}
+```
+
+
+```
+{
+  "make": "Tata",
+  "model": "Tiago",
+  "color": "White",
+  "dealerName": "Dealer-1"
+}
+```
+
+
+**Minifab commands to deploy and invoke chaincode**
+
+`sudo chmod -R 777 vars/`
+
+`mkdir -p vars/chaincode/KBA-Automobile/node`
+
+`cp -r ../Chaincode/KBA-Automobile/* vars/chaincode/KBA-Automobile/node/`
+
+`cp vars/chaincode/KBA-Automobile/node/collections.json ./vars/KBA-Automobile_collection_config.json`
+
+`minifab ccup -n KBA-Automobile -l node -v 3.0 -d false -r true`
+
+`minifab invoke -n KBA-Automobile -p '"createCar","car01","Tata","Tiago","White","22/03/2023","F-01"'`
+
+`minifab query -n KBA-Automobile -p '"readCar","car01"'`
+
+```
+MAKE=$(echo -n "Tata" | base64 | tr -d \\n)
+MODEL=$(echo -n "Tiago" | base64 | tr -d \\n)
+COLOR=$(echo -n "White" | base64 | tr -d \\n)
+DEALER_NAME=$(echo -n "XXX" | base64 | tr -d \\n)
+```
+
+`minifab invoke -n KBA-Automobile -p '"OrderContract:createOrder","ord01"' -t '{"make":"'$MAKE'","model":"'$MODEL'","color":"'$COLOR'","dealerName":"'$DEALER_NAME'"}' -o dealer.auto.com`
+
+`minifab query -n KBA-Automobile -p '"OrderContract:readOrder","ord01"'`
+
+
+`minifab query -n KBA-Automobile -p '"queryAllCars"'`
+
+`minifab query -n KBA-Automobile -p '"OrderContract:queryAllOrders"'`
+
+`minifab query -n KBA-Automobile -p '"getCarHistory","car01"'`
+
+`minifab query -n KBA-Automobile -p '"getCarsWithPagination","10",""'`
+
+`minifab query -n KBA-Automobile -p '"checkMatchingOrders","car01"'`
+
+`minifab invoke -n KBA-Automobile -p '"matchOrder","car01","ord01"'`
+
+`minifab invoke -n KBA-Automobile -p '"registerCar","car01","Bob","KL-01-XXXX"' -o mvd.auto.com`
+
+
 **Day 3: Minifabric**
 
 https://github.com/hyperledger-labs/minifabric
@@ -135,23 +247,6 @@ sudo rm -rf vars
 
 `minifab query -n KBA-Automobile -p '"readCar","car02"'`
 
-**To view explorer**
-
-`minifab explorerup`
-
-userid: exploreradmin
-
-password: exploreradminpw
-
-`minifab explorerdown`
-
-**To view couchdb**
-
-http://localhost:7006/_utils/
-
- userid: admin
- 
- password: adminpw
 
 **Day2**
 
