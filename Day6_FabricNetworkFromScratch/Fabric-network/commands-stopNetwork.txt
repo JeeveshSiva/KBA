@@ -6,7 +6,7 @@ docker-compose -f docker/docker-compose-ca.yaml down
 
 docker rm -f $(docker ps -a | awk '($2 ~ /dev-peer.*/) {print $1}')
 
-docker volume prune
+docker volume rm $(docker volume ls -q)
 
 sudo rm -rf organizations/
 
