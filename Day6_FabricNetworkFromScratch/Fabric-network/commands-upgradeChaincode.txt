@@ -7,9 +7,14 @@ peer lifecycle chaincode package fabcar.tar.gz --path /opt/gopath/src/github.com
 
 peer lifecycle chaincode install fabcar.tar.gz
 
+peer lifecycle chaincode queryinstalled
+
+
 ############## peer0_Org2 terminal ##############
 
 peer lifecycle chaincode install fabcar.tar.gz
+
+peer lifecycle chaincode queryinstalled
 
 ############## peer0_Org1 terminal ##############
 
