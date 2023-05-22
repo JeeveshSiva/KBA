@@ -1,4 +1,5 @@
-/// Make necessary changes in the fabcar chaincode.
+/// Make necessary changes in the fabcar chaincode. Add the following property for car in createCar function.   
+carStatus: 'In Factory'
 
 ############## peer0_Org1 terminal ##############
 
