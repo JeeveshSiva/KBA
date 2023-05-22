@@ -30,7 +30,11 @@ export PACKAGE_ID=fabcar_2:bc2bf6f4b97179c11f093bf6b74fdd85701a57ac3a822e9202f4a
 
 peer lifecycle chaincode approveformyorg --channelID ${CHANNEL_NAME} --name fabcar --version 2 --sequence 2  --package-id $PACKAGE_ID  --tls --cafile $ORDERER_TLS_CA  --waitForEvent
 
+peer lifecycle chaincode checkcommitreadiness --channelID ${CHANNEL_NAME} --name fabcar --version 2 --sequence 2 --output json
+
 peer lifecycle chaincode commit -o orderer.example.com:7050 -C ${CHANNEL_NAME} --name fabcar --tls --cafile $ORDERER_TLS_CA  --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --version 2 --sequence 2
+
+peer lifecycle chaincode querycommitted --channelID ${CHANNEL_NAME} --name fabcar
 
 // Now the chaincode is ready for invoke and query transactions
 
