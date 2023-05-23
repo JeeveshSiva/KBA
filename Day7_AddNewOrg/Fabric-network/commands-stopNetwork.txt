@@ -1,0 +1,43 @@
+############## host terminal ##############
+
+docker-compose -f docker/docker-compose-2org.yaml down
+
+docker-compose -f docker/docker-compose-ca.yaml down
+
+sudo rm -rf organizations/
+
+sudo rm -rf channel-artifacts/
+
+/// If added new peer, then execute the following command.
+
+docker-compose -f docker/docker-compose-peer1org1.yaml down
+
+/// If added new org, then execute the following two commands.
+
+docker-compose -f docker/docker-compose-org3.yaml down
+
+docker-compose -f docker/docker-compose-ca-org3.yaml down
+
+docker rm -f $(docker ps -a | awk '($2 ~ /dev-peer.*/) {print $1}')
+
+docker volume prune
+
+docker ps -a
+
+// if there still exists the containers then execute the following commands.
+
+docker rm $(docker container ls -q) --force
+
+docker container prune
+
+docker system prune
+
+docker volume prune
+
+docker network prune
+
+
+
+
+
+
