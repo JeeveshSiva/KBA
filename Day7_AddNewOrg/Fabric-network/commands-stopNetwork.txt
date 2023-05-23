@@ -8,8 +8,6 @@ sudo rm -rf organizations/
 
 sudo rm -rf channel-artifacts/
 
-docker volume rm $(docker volume ls -q)
-
 /// If added new peer, then execute the following command.
 
 docker-compose -f docker/docker-compose-peer1org1.yaml down
@@ -23,6 +21,8 @@ docker-compose -f docker/docker-compose-ca-org3.yaml down
 docker rm -f $(docker ps -a | awk '($2 ~ /dev-peer.*/) {print $1}')
 
 docker volume prune
+
+docker volume rm $(docker volume ls -q)
 
 docker ps -a
 
