@@ -61,6 +61,8 @@ peer channel list
 
 peer lifecycle chaincode install fabcar.tar.gz
 
+peer lifecycle chaincode queryinstalled
+
 ======== Invoke ========
 
 peer chaincode invoke -o orderer.example.com:7050  --tls --cafile $ORDERER_TLS_CA --channelID ${CHANNEL_NAME} --name fabcar --peerAddresses peer1.org1.example.com:8051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/ca.crt  --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"createCar", "Args":["CAR103","Tata","Tiago","Red","Bob"]}'

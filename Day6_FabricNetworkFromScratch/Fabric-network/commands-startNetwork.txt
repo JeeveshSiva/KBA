@@ -109,6 +109,8 @@ peer lifecycle chaincode queryinstalled
 
 peer lifecycle chaincode install fabcar.tar.gz
 
+peer lifecycle chaincode queryinstalled
+
 ############## peer0_Org1 terminal ##############
 
 ///Execute the following command with the correct Package ID

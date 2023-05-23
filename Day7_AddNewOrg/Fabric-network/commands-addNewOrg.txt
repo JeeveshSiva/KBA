@@ -96,6 +96,8 @@ peer channel list
 
 peer lifecycle chaincode install fabcar.tar.gz
 
+peer lifecycle chaincode queryinstalled
+
 ////// Execute the following command with the correct Package ID
 export PACKAGE_ID=fabcar_1:bc2bf6f4b97179c11f093bf6b74fdd85701a57ac3a822e9202f4a1c401f0ea35
 
