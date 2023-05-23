@@ -8,6 +8,8 @@ sudo rm -rf organizations/
 
 sudo rm -rf channel-artifacts/
 
+docker volume rm $(docker volume ls -q)
+
 /// If added new peer, then execute the following command.
 
 docker-compose -f docker/docker-compose-peer1org1.yaml down
