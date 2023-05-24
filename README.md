@@ -6,6 +6,47 @@ Hyperledger Fabric readthedocs: https://hyperledger-fabric.readthedocs.io/en/rel
 
 Fabric samples: https://github.com/hyperledger/fabric-samples
 
+**Day 9: UI**
+
+**Install express generator**
+
+`sudo npm install -g express-generator`
+
+`express --help`
+
+`cd Automobile`
+
+`express --view=hbs UI`
+
+`cd UI`
+
+`npm install`
+
+`npm start`
+
+http://localhost:3000/
+
+
+**Edit client.js**
+
+`return Promise.resolve(result)`
+
+`return Promise.reject(error);`
+
+**Day 8: Client** 
+
+In Client Folder Terminal
+
+`npm init`
+
+`npm install fabric-network@2.2.8`
+
+`npm install fabric-ca-client@2.2.4`
+
+In Network Folder Terminal
+
+`sudo chmod -R 777 vars/`
+
 **Day 4: Chaincode**
 
 **To view explorer**

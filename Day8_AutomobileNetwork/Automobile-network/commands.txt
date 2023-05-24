@@ -1,0 +1,248 @@
+/////Open a command terminal with in Automobile-network folder, let's call this terminal as host terminal
+
+############## host terminal ##############
+
+------------Register the ca admin for each organization—----------------
+
+docker-compose -f docker/docker-compose-ca.yaml up -d
+
+sudo chmod -R 777 organizations/
+
+chmod +x registerEnroll.sh
+
+------------Register and enroll the users for each organization—-----------
+
+./registerEnroll.sh
+
+-------------Generate the genesis block—-------------------------------
+
+export FABRIC_CFG_PATH=${PWD}
+
+configtxgen -profile ThreeOrgsOrdererGenesis -channelID system-channel -outputBlock ./channel-artifacts/genesis.block
+
+—--------Create the channel transaction—-----------------
+
+export CHANNEL_NAME=autochannel
+
+configtxgen -profile ThreeOrgsChannel -outputCreateChannelTx ./channel-artifacts/${CHANNEL_NAME}.tx -channelID $CHANNEL_NAME
+
+—-------------Build the infrastructure—-----------------
+
+docker-compose -f docker/docker-compose-3org.yaml up -d
+
+/////Open another terminal with in Automobile-network folder, let's call this terminal as peer0_Manufacturer terminal.
+
+############## peer0_Manufacturer terminal ##############
+
+docker exec -it cli bash
+
+export CHANNEL_NAME=autochannel
+
+—-----------create channel—---------
+
+peer channel create -o orderer.auto.com:7050 -c $CHANNEL_NAME -f ./config/$CHANNEL_NAME.tx --tls --cafile $ORDERER_TLS_CA
+
+—---------------Join peer to the channel—-------------
+
+peer channel join -b $CHANNEL_NAME.block
+
+peer channel list
+
+/////Open another terminal with in Automobile-network folder, let's call this terminal as peer0_Dealer terminal.
+
+############## peer0_Dealer terminal ##############
+
+docker exec -it cli bash
+
+export CHANNEL_NAME=autochannel 
+
+export CORE_PEER_LOCALMSPID=dealer-auto-com 
+
+export CORE_PEER_ADDRESS=peer0.dealer.auto.com:9051 
+
+export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/users/Admin@dealer.auto.com/msp
+
+export CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/server.crt 
+
+export CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/server.key 
+
+export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/ca.crt
+
+—---------------Join peer to the channel—-------------
+
+peer channel join -b $CHANNEL_NAME.block
+
+peer channel list
+
+/////Open another terminal with in Automobile-network folder, let's call this terminal as peer0_Mvd terminal.
+
+############## peer0_Mvd terminal ##############
+
+docker exec -it cli bash
+
+export CHANNEL_NAME=autochannel 
+
+export CORE_PEER_LOCALMSPID=mvd-auto-com
+
+export CORE_PEER_ADDRESS=peer0.mvd.auto.com:11051 
+
+export CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/server.crt 
+
+export CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/server.key 
+
+export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/ca.crt
+
+export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/users/Admin@mvd.auto.com/msp
+
+—---------------Join peer to the channel—-------------
+
+peer channel join -b $CHANNEL_NAME.block
+
+peer channel list
+
+—-------------anchor peer update—-----------
+
+############## host terminal ##############
+
+configtxgen -profile ThreeOrgsChannel -outputAnchorPeersUpdate channel-artifacts/ManufacturerMSPanchors.tx -channelID ${CHANNEL_NAME} -asOrg manufacturer-auto-com
+
+configtxgen -profile ThreeOrgsChannel -outputAnchorPeersUpdate channel-artifacts/DealerMSPanchors.tx -channelID ${CHANNEL_NAME} -asOrg dealer-auto-com
+
+configtxgen -profile ThreeOrgsChannel -outputAnchorPeersUpdate channel-artifacts/MvdMSPanchors.tx -channelID ${CHANNEL_NAME} -asOrg mvd-auto-com
+
+
+############## peer0_Manufacturer terminal ##############
+
+peer channel update -o orderer.auto.com:7050 -c ${CHANNEL_NAME} -f ./config/ManufacturerMSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+############## peer0_Dealer terminal ##############
+
+peer channel update -o orderer.auto.com:7050 -c ${CHANNEL_NAME} -f ./config/DealerMSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+############## peer0_Mvd terminal ##############
+
+peer channel update -o orderer.auto.com:7050 -c ${CHANNEL_NAME} -f ./config/MvdMSPanchors.tx --tls --cafile $ORDERER_TLS_CA
+
+—-----------------Chaincode lifecycle—-------------------
+
+/// Make sure that KBA-Automobile chaincode is available in Chaincode folder which is outside Automobile-network. 
+
+############## peer0_Manufacturer terminal ##############
+
+peer lifecycle chaincode package kbaauto.tar.gz --path /opt/gopath/src/github.com/chaincode/KBA-Automobile/ --lang node --label kbaauto_1
+
+peer lifecycle chaincode install kbaauto.tar.gz
+
+peer lifecycle chaincode queryinstalled
+
+///Copy the package Id and add it to the environment variable
+
+export PACKAGE_ID=kbaauto_1:dc22365078c3497385c1e528422ed445f7e5f2b41871ac2f69ba21ac293d2024
+
+############## peer0_Dealer terminal ##############
+
+peer lifecycle chaincode install kbaauto.tar.gz
+
+peer lifecycle chaincode queryinstalled
+
+///Copy the package Id and add it to the environment variable
+
+export PACKAGE_ID=kbaauto_1:dc22365078c3497385c1e528422ed445f7e5f2b41871ac2f69ba21ac293d2024
+
+############## peer0_Mvd terminal ##############
+
+peer lifecycle chaincode install kbaauto.tar.gz
+
+peer lifecycle chaincode queryinstalled
+
+///Copy the package Id and add it to the environment variable
+
+export PACKAGE_ID=kbaauto_1:dc22365078c3497385c1e528422ed445f7e5f2b41871ac2f69ba21ac293d2024
+
+############## peer0_Manufacturer terminal ##############
+
+peer lifecycle chaincode approveformyorg --channelID ${CHANNEL_NAME} --collections-config /opt/gopath/src/github.com/chaincode/KBA-Automobile/collections.json --name kbaauto --version 1 --sequence 1 --package-id $PACKAGE_ID  --tls --cafile $ORDERER_TLS_CA  --waitForEvent
+
+############## peer0_Dealer terminal ##############
+
+peer lifecycle chaincode approveformyorg --channelID ${CHANNEL_NAME} --collections-config /opt/gopath/src/github.com/chaincode/KBA-Automobile/collections.json --name kbaauto --version 1 --sequence 1 --package-id $PACKAGE_ID  --tls --cafile $ORDERER_TLS_CA  --waitForEvent
+
+############## peer0_Mvd terminal ##############
+
+peer lifecycle chaincode approveformyorg --channelID ${CHANNEL_NAME} --collections-config /opt/gopath/src/github.com/chaincode/KBA-Automobile/collections.json --name kbaauto --version 1 --sequence 1 --package-id $PACKAGE_ID  --tls --cafile $ORDERER_TLS_CA  --waitForEvent
+
+############## peer0_Manufacturer terminal ##############
+
+peer lifecycle chaincode checkcommitreadiness --channelID ${CHANNEL_NAME} --collections-config /opt/gopath/src/github.com/chaincode/KBA-Automobile/collections.json --name kbaauto --version 1 --sequence 1 --output json
+
+peer lifecycle chaincode commit -o orderer.auto.com:7050 -C ${CHANNEL_NAME} --name kbaauto --tls --cafile $ORDERER_TLS_CA  \
+--peerAddresses peer0.manufacturer.auto.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/manufacturer.auto.com/peers/peer0.manufacturer.auto.com/tls/ca.crt \
+--peerAddresses peer0.dealer.auto.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/ca.crt \
+--peerAddresses peer0.mvd.auto.com:11051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/ca.crt \
+--collections-config /opt/gopath/src/github.com/chaincode/KBA-Automobile/collections.json \
+--version 1 --sequence 1
+
+peer lifecycle chaincode querycommitted --channelID ${CHANNEL_NAME} --name kbaauto
+
+peer chaincode invoke -o orderer.auto.com:7050  --tls --cafile $ORDERER_TLS_CA --channelID ${CHANNEL_NAME} --name kbaauto \
+--peerAddresses peer0.manufacturer.auto.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/manufacturer.auto.com/peers/peer0.manufacturer.auto.com/tls/ca.crt \
+--peerAddresses peer0.dealer.auto.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/ca.crt \
+--peerAddresses peer0.mvd.auto.com:11051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/ca.crt \
+-c '{"function":"createCar", "Args":["CAR500","Tata","Tiago","Black","25/08/2022","X1"]}'
+
+peer chaincode query --channelID ${CHANNEL_NAME} --name kbaauto --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"function":"readCar", "Args":["CAR500"]}'
+
+peer chaincode query --channelID ${CHANNEL_NAME} --name kbaauto --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"Args":["readCar","CAR500"]}'
+
+peer chaincode query --channelID ${CHANNEL_NAME} --name kbaauto --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"Args":["CarContract:readCar","CAR500"]}'
+
+--------Invoke Private Transaction----------
+
+############## peer0_Dealer terminal ##############
+
+export MAKE=$(echo -n "Tata" | base64 | tr -d \\n)
+
+export MODEL=$(echo -n "Tiago" | base64 | tr -d \\n)
+
+export COLOR=$(echo -n "White" | base64 | tr -d \\n)
+
+export DEALER_NAME=$(echo -n "XXX" | base64 | tr -d \\n)
+
+peer chaincode invoke -o orderer.auto.com:7050  --tls --cafile $ORDERER_TLS_CA --channelID ${CHANNEL_NAME} --name kbaauto \
+--peerAddresses peer0.manufacturer.auto.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/manufacturer.auto.com/peers/peer0.manufacturer.auto.com/tls/ca.crt \
+--peerAddresses peer0.dealer.auto.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/dealer.auto.com/peers/peer0.dealer.auto.com/tls/ca.crt \
+--peerAddresses peer0.mvd.auto.com:11051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/mvd.auto.com/peers/peer0.mvd.auto.com/tls/ca.crt \
+-c '{"Args":["OrderContract:createOrder","ORD201"]}' --transient "{\"make\":\"$MAKE\",\"model\":\"$MODEL\",\"color\":\"$COLOR\",\"dealerName\":\"$DEALER_NAME\"}"
+
+peer chaincode query --channelID ${CHANNEL_NAME} --name kbaauto --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE -c '{"Args":["OrderContract:readOrder","ORD201"]}'
+
+
+--------- Stop the Automobile-network --------------
+
+############## host terminal ##############
+
+docker-compose -f docker/docker-compose-3org.yaml down
+
+docker-compose -f docker/docker-compose-ca.yaml down
+
+docker rm -f $(docker ps -a | awk '($2 ~ /dev-peer.*/) {print $1}')
+
+sudo rm -rf organizations/
+
+sudo rm -rf channel-artifacts/
+
+docker volume rm $(docker volume ls -q)
+
+docker ps -a
+
+// if there still exists the containers then execute the following commands.
+
+docker rm $(docker container ls -q) --force
+
+docker container prune
+
+docker system prune
+
+docker volume prune
+
+docker network prune
