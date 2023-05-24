@@ -33,6 +33,18 @@ http://localhost:3000/
 
 `return Promise.reject(error);`
 
+**Day 9:Event**
+
+ In Event Terminal
+
+ `npm init`
+
+ `npm install fabric-network@2.2.8`
+
+ change in chaincode in createCar above putstate
+	let addCarEventData = { Type: 'Car creation', Model: model }
+  await ctx.stub.setEvent('addCarEvent', Buffer.from(JSON.stringify(addCarEventData)));
+
 **Day 8: Client** 
 
 In Client Folder Terminal
