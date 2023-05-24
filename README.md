@@ -42,7 +42,9 @@ http://localhost:3000/
  `npm install fabric-network@2.2.8`
 
  change in chaincode in createCar above putstate
+
 	let addCarEventData = { Type: 'Car creation', Model: model }
+  
   await ctx.stub.setEvent('addCarEvent', Buffer.from(JSON.stringify(addCarEventData)));
 
 **Day 8: Client** 
