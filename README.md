@@ -6,6 +6,20 @@ Hyperledger Fabric readthedocs: https://hyperledger-fabric.readthedocs.io/en/rel
 
 Fabric samples: https://github.com/hyperledger/fabric-samples
 
+**Day 8: Client** 
+
+In Client Folder Terminal
+
+`npm init`
+
+`npm install fabric-network@2.2.8`
+
+`npm install fabric-ca-client@2.2.4`
+
+In Network Folder Terminal
+
+`sudo chmod -R 777 vars/`
+
 **Day 4: Chaincode**
 
 **To view explorer**
