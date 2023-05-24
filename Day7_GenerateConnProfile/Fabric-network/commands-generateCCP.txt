@@ -1,0 +1,9 @@
+//Develop ccp-template.json, ccp-template.yaml, ccp-generate.sh
+
+############## host terminal ##############
+
+chmod +x ccp-generate.sh
+
+./ccp-generate.sh
+
+//The respective files will be generated in location organizations/peerOrganizations/org1.example.com and organizations/peerOrganizations/org2.example.com
