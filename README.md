@@ -33,6 +33,20 @@ http://localhost:3000/
 
 `return Promise.reject(error);`
 
+**Day 9: Api**
+
+`npm i express`
+
+`npm init`
+
+`npm i joi`
+
+` sudo npm i -g nodemon`
+
+`node sample`
+
+`curl -X PUT "http://localhost:3000/h"`
+
 **Day 9:Event**
 
  In Event Terminal
