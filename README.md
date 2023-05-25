@@ -132,6 +132,10 @@ http://localhost:7006/_utils/
 
 **Minifab commands to deploy and invoke chaincode**
 
+**Note**: Execute the following commands from **Network** folder
+
+`./startNetwork.sh`
+
 `sudo chmod -R 777 vars/`
 
 `mkdir -p vars/chaincode/KBA-Automobile/node`
