@@ -6,6 +6,47 @@ Hyperledger Fabric readthedocs: https://hyperledger-fabric.readthedocs.io/en/rel
 
 Fabric samples: https://github.com/hyperledger/fabric-samples
 
+**Day 9: UI**
+
+**Install express generator**
+
+`sudo npm install -g express-generator`
+
+`express --help`
+
+`cd Automobile`
+
+`express --view=hbs UI`
+
+`cd UI`
+
+`npm install`
+
+`npm start`
+
+http://localhost:3000/
+
+
+**Edit client.js**
+
+`return Promise.resolve(result)`
+
+`return Promise.reject(error);`
+
+**Day 9:Event**
+
+ In Event Terminal
+
+ `npm init`
+
+ `npm install fabric-network@2.2.8`
+
+ change in chaincode in createCar above putstate
+
+	let addCarEventData = { Type: 'Car creation', Model: model }
+  
+  await ctx.stub.setEvent('addCarEvent', Buffer.from(JSON.stringify(addCarEventData)));
+
 **Day 8: Client** 
 
 In Client Folder Terminal
@@ -90,6 +131,10 @@ http://localhost:7006/_utils/
 
 
 **Minifab commands to deploy and invoke chaincode**
+
+**Note**: Execute the following commands from **Network** folder
+
+`./startNetwork.sh`
 
 `sudo chmod -R 777 vars/`
 
