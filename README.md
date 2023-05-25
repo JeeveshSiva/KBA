@@ -47,6 +47,8 @@ http://localhost:3000/
 
 `curl -X PUT "http://localhost:3000/h"`
 
+`snap install postman`
+
 **Day 9:Event**
 
  In Event Terminal
