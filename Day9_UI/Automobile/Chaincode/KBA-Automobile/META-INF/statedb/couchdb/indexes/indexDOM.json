@@ -1,0 +1,9 @@
+{
+    "index":{
+        "fields":["color"]
+    },
+    "ddoc":"indexDOMDoc",
+    "name":"indexDOM",
+    "type":"json"
+}
+

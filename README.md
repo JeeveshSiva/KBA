@@ -33,6 +33,34 @@ http://localhost:3000/
 
 `return Promise.reject(error);`
 
+**Day 9: Api**
+
+`npm i express`
+
+`npm init`
+
+`npm i joi`
+
+` sudo npm i -g nodemon`
+
+`node sample`
+
+`curl -X PUT "http://localhost:3000/h"`
+
+**Day 9:Event**
+
+ In Event Terminal
+
+ `npm init`
+
+ `npm install fabric-network@2.2.8`
+
+ change in chaincode in createCar above putstate
+
+	let addCarEventData = { Type: 'Car creation', Model: model }
+  
+  await ctx.stub.setEvent('addCarEvent', Buffer.from(JSON.stringify(addCarEventData)));
+
 **Day 8: Client** 
 
 In Client Folder Terminal
@@ -117,6 +145,10 @@ http://localhost:7006/_utils/
 
 
 **Minifab commands to deploy and invoke chaincode**
+
+**Note**: Execute the following commands from **Network** folder
+
+`./startNetwork.sh`
 
 `sudo chmod -R 777 vars/`
 
