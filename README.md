@@ -16,6 +16,8 @@ Fabric samples: https://github.com/hyperledger/fabric-samples
 
 `sudo snap install --classic --channel=<version-no>/stable go`
 
+`sudo snap install --classic --channel=1.18/stable go`
+
 `go mod init` 
 
 `go mod tidy`
