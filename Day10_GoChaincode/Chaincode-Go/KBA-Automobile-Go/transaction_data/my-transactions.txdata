@@ -1,0 +1,44 @@
+[
+    {
+        "transactionName": "CarExists",
+        "transactionLabel": "A test CarExists transaction",
+        "arguments": [
+            "001"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "CreateCar",
+        "transactionLabel": "A test CreateCar transaction",
+        "arguments": [
+            "001",
+            "some value"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "ReadCar",
+        "transactionLabel": "A test ReadCar transaction",
+        "arguments": [
+            "001"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "UpdateCar",
+        "transactionLabel": "A test UpdateCar transaction",
+        "arguments": [
+            "001",
+            "some other value"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "DeleteCar",
+        "transactionLabel": "A test DeleteCar transaction",
+        "arguments": [
+            "001"
+        ],
+        "transientData": {}
+    }
+]
