@@ -6,6 +6,12 @@ Hyperledger Fabric readthedocs: https://hyperledger-fabric.readthedocs.io/en/rel
 
 Fabric samples: https://github.com/hyperledger/fabric-samples
 
+**Day 10: Go Chaincode**
+
+`cd KBA-Automobile-Go`
+
+`go mod tidy`
+
 **Day 9: UI**
 
 **Install express generator**
