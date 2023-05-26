@@ -12,6 +12,190 @@ Fabric samples: https://github.com/hyperledger/fabric-samples
 
 `go mod tidy`
 
+**Day 10: Go Lang**
+
+`sudo snap install --classic --channel=<version-no>/stable go`
+
+`go mod init` 
+
+`go mod tidy`
+
+`go run <module name>`
+
+`go run .`
+
+**Day 10:Caliper**
+
+# Start up the test-network
+
+`cd test-network/`
+
+`./network.sh up createChannel`
+
+#Deploy chaincode
+
+`./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript`
+
+**Step 1:
+
+Create a Caliper Workspace**
+
+`mkdir caliper-workspace`
+
+`mkdir -p caliper-workspace/networks caliper-workspace/benchmarks caliper-workspace/workload`
+
+**Within the caliper-workspace directory, install caliper CLI using the following terminal command:**
+
+`npm install --only=prod @hyperledger/caliper-cli@0.4.2`
+
+**Bind the SDK using the following terminal command:**
+
+`npx caliper bind --caliper-bind-sut fabric:2.2`
+
+**Step 2 
+
+ Build a Network Configuration File**
+
+#Under the networks folder create a template file called networkConfig.yaml
+
+`touch networkConfig.yaml`
+
+```
+name: Caliper test
+version: "2.0.0"
+ 
+caliper:
+ blockchain: fabric
+ 
+channels:
+ - channelName: mychannel
+   contracts:
+   - id: basic
+ 
+organizations:
+ - mspid: Org1MSP
+   identities:
+     certificates:
+     - name: 'User1'
+       clientPrivateKey:
+         path: '../fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk'
+       clientSignedCert:
+         path: '../fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem'
+   connectionProfile:
+     path: '../fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.yaml'
+     discover: true
+```
+
+
+
+**Step 3 
+Build a Test Workload Module**
+
+#Within the workload folder create a file called readAsset.js with the following content:
+
+
+```
+'use strict';
+ 
+const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
+ 
+class MyWorkload extends WorkloadModuleBase {
+   constructor() {
+       super();
+   }
+ 
+   async initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext) {
+       await super.initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext);
+ 
+       for (let i=0; i<this.roundArguments.assets; i++) {
+           const assetID = `${this.workerIndex}_${i}`;
+           console.log(`Worker ${this.workerIndex}: Creating asset ${assetID}`);
+           const request = {
+               contractId: this.roundArguments.contractId,
+               contractFunction: 'CreateAsset',
+               invokerIdentity: 'User1',
+               contractArguments: [assetID,'blue','20','penguin','500'],
+               readOnly: false
+           };
+ 
+           await this.sutAdapter.sendRequests(request);
+       }
+   }
+ 
+   async submitTransaction() {
+       const randomId = Math.floor(Math.random()*this.roundArguments.assets);
+       const myArgs = {
+           contractId: this.roundArguments.contractId,
+           contractFunction: 'ReadAsset',
+           invokerIdentity: 'User1',
+           contractArguments: [`${this.workerIndex}_${randomId}`],
+           readOnly: true
+       };
+ 
+       await this.sutAdapter.sendRequests(myArgs);
+   }
+ 
+async cleanupWorkloadModule() {
+       for (let i=0; i<this.roundArguments.assets; i++) {
+           const assetID = `${this.workerIndex}_${i}`;
+           console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
+           const request = {
+               contractId: this.roundArguments.contractId,
+               contractFunction: 'DeleteAsset',
+               invokerIdentity: 'User1',
+               contractArguments: [assetID],
+               readOnly: false
+           };
+ 
+           await this.sutAdapter.sendRequests(request);
+       }
+   }
+}
+ 
+function createWorkloadModule() {
+   return new MyWorkload();
+}
+ 
+module.exports.createWorkloadModule = createWorkloadModule;
+```
+
+
+**Step 4 
+ Build a Benchmark Configuration File**
+
+#Under the benchmarks folder create a file called myAssetBenchmark.yaml with the following content:
+
+```
+test:
+    name: basic-contract-benchmark
+    description: test benchmark
+    workers:
+      number: 2
+    rounds:
+      - label: readAsset
+        description: Read asset benchmark
+        txDuration: 30
+        rateControl:
+          type: fixed-load
+          opts:
+            transactionLoad: 2
+        workload:
+          module: workload/readAsset.js
+          arguments:
+            assets: 10
+            contractId: basic
+```
+
+
+
+**Step 5 - Run the Caliper Benchmark**
+
+#Ensure that you are in the caliper-workspace directory.
+#In the terminal run the following Caliper CLI command:
+
+
+`npx caliper launch manager --caliper-workspace ./ --caliper-networkconfig networks/networkConfig.yaml --caliper-benchconfig benchmarks/myAssetBenchmark.yaml --caliper-flow-only-test --caliper-fabric-gateway-enabled`
+
 **Day 9: UI**
 
 **Install express generator**
